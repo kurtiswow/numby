@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>numby.gg</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+#grid {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-gap: 5px;
+      margin-bottom: 20px;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .cell.animate {
+      animation: countUp 0.2s steps(10, end) forwards;
+    }
+    .cell.match {
+      animation: flash 0.1s ease-in-out 2;
+    }
+    @keyframes countUp {
+      from { transform: scale(1.2); }
+      to { transform: scale(1); }
+    }
+    @keyframes flash {
+      0%, 100% { background-color: #1e1e1e; }
+      50% { background-color: #444; }
+    }
+    #inputArea {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .inputBox {
+      width: 60px;
+      height: 60px;
+      background: #222;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 4px 0;
+    }
+
+    .inputBoxSmall {
+      width: 60px;
+      height: 60px;
+      background: #222;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 4px 0;
+      transform: scale(0.7);
+    }
+
+
+    #reset {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #rainbowTitle {
+      font-size: 36px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+    }
+    #rainbowTitle span {
+      display: inline-block;
+      animation: rainbow 5s linear infinite;
+    }
+    #rainbowTitle span:nth-child(1) { animation-delay: 0s; }
+    #rainbowTitle span:nth-child(2) { animation-delay: 0.3s; }
+    #rainbowTitle span:nth-child(3) { animation-delay: 0.6s; }
+    #rainbowTitle span:nth-child(4) { animation-delay: 0.9s; }
+    #rainbowTitle span:nth-child(5) { animation-delay: 1.2s; }
+    #rainbowTitle span:nth-child(6) { animation-delay: 1.5s; }
+    #rainbowTitle span:nth-child(7) { animation-delay: 1.8s; }
+    #rainbowTitle span:nth-child(8) { animation-delay: 2.1s; }
+
+    @keyframes rainbow {
+      0% { color: red; }
+      14% { color: orange; }
+      28% { color: yellow; }
+      42% { color: green; }
+      56% { color: blue; }
+      70% { color: indigo; }
+      84% { color: violet; }
+      100% { color: red; }
+    }
+
+#footer {
+  margin: 30px auto;
+  font-size: 14px;
+  color: #aaa;
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.5;
+}
+      #patterns span {
+      margin: 0 4px;
+      padding: 4px 8px;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+
+    #patterns span.completed {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+  </style>
+</head>
+<body>
+  <h1 id="rainbowTitle">
+    <span>n</span><span>u</span><span>m</span><span>b</span><span>y</span><span>.</span><span>g</span><span>g</span>
+  </h1>
+  
+<div id="patternTracker">
+  <p>Complete one of each pattern to win:</p>
+  <div id="patterns">
+    <span data-val="1">1,1,1</span>
+    <span data-val="2">2,2,2</span>
+    <span data-val="3">3,3,3</span>
+    <span data-val="4">4,4,4</span>
+    <span data-val="5">5,5,5</span>
+    <span data-val="6">6,6,6</span>
+    <span data-val="7">7,7,7</span>
+    <span data-val="8">8,8,8</span>
+    <span data-val="9">9,9,9</span>
+  </div>
+</div>
+  
+  <div style="margin: 20px 0;"></div>
+  <div id="grid"></div>
+  <div id="inputArea">
+    <div class="inputBox" id="topBox"></div>
+    <div class="inputBoxSmall" id="bottomBox"></div>
+  </div>
+  <h2>Moves Left: <span id="moves">50</span> | Score: <span id="score">0</span></h2>
+
+  <div style="margin: 20px 0;"></div>
+
+  <button id="reset">Reset Game</button>
+
+<div id="leaderboard">
+
+  <div id="footer"><p><strong>How to Play</strong><br>Click a box in the 3x3 grid to add the number below. If the total hits 10 or more, it loops (e.g., 3 + 9 = 2. Don’t overthink it).<br><br>
+  Make a line—vertical, horizontal, or diagonal—of the same number to score. The middle number goes up by 1, the sides reset to 0, and the full number (like 222) is added to your score because... sure, why not.<br><br>
+  That’s it. Go do math and feel something.<br>
+  Found a bug? Want to yell into the void? Scroll down.</p></div>
+
+  <div id="footer">made by kurtiswow with a little help from ChatGPT :)</div>
+<br>
+  <small><a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" style="color: #aaa;">Licensed CC BY-NC 4.0</a></small>
+
+  <script>
+    const gridEl = document.getElementById("grid");
+    const topBox = document.getElementById("topBox");
+    const bottomBox = document.getElementById("bottomBox");
+    const scoreEl = document.getElementById("score");
+    const movesEl = document.getElementById("moves");
+
+    let grid = [];
+    let score = 0;
+    let moves = 50;
+
+    
+    function getRandomNum() {
+      return Math.floor(Math.random() * 9) + 1;
+    }
+
+    function createGrid() {
+      grid = [];
+      gridEl.innerHTML = "";
+      for (let r = 0; r < 3; r++) {
+        grid[r] = [];
+        for (let c = 0; c < 3; c++) {
+          const val = getRandomNum();
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.textContent = val;
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          cell.addEventListener("click", () => handleClick(r, c));
+          grid[r][c] = cell;
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function handleClick(r, c) {
+      if (moves <= 0) return;
+      const value = parseInt(topBox.textContent);
+      animateAddToCell(r, c, value);
+      setTimeout(() => {
+        checkAllMatches();
+      }, 500);
+      topBox.textContent = bottomBox.textContent;
+      bottomBox.textContent = getRandomNum();
+      moves--;
+      movesEl.textContent = moves;
+    }
+
+    function animateAddToCell(r, c, value) {
+      const cell = grid[r][c];
+      let current = parseInt(cell.textContent);
+      const final = (current + value) % 10;
+        cell.textContent = final;
+      cell.classList.add("animate");
+      setTimeout(() => {
+        cell.classList.remove("animate");
+      }, 400);
+    }
+
+    function checkAllMatches() {
+      const lines = [
+        [[0,0],[0,1],[0,2]],
+        [[1,0],[1,1],[1,2]],
+        [[2,0],[2,1],[2,2]],
+        [[0,0],[1,0],[2,0]],
+        [[0,1],[1,1],[2,1]],
+        [[0,2],[1,2],[2,2]],
+        [[0,0],[1,1],[2,2]],
+        [[0,2],[1,1],[2,0]]
+      ];
+      lines.forEach(line => {
+        const [a, b, c] = line;
+        const valA = parseInt(grid[a[0]][a[1]].textContent);
+        const valB = parseInt(grid[b[0]][b[1]].textContent);
+        const valC = parseInt(grid[c[0]][c[1]].textContent);
+        if (valA === valB && valB === valC && valA !== 0) {
+          const matchVal = valA;
+          score += parseInt(`${matchVal}${matchVal}${matchVal}`);
+          document.querySelector(`#patterns span[data-val='${matchVal}']`)?.classList.add("completed");
+          grid[a[0]][a[1]].textContent = '0';
+          grid[c[0]][c[1]].textContent = '0';
+          grid[b[0]][b[1]].textContent = (matchVal === 9 ? 0 : matchVal + 1).toString();
+
+          [a, b, c].forEach(([r, c]) => {
+            grid[r][c].classList.add("match");
+            setTimeout(() => grid[r][c].classList.remove("match"), 800);
+          });
+
+          if (document.querySelectorAll('#patterns span:not(.completed)').length === 0) {
+            alert("You win! All patterns matched!");
+            saveScore(score);
+          }
+        }
+      });
+      scoreEl.textContent = score;
+    }
+
+    document.getElementById("reset").addEventListener("click", () => {
+      score = 0;
+      moves = 50;
+      scoreEl.textContent = 0;
+      movesEl.textContent = 50;
+      topBox.textContent = getRandomNum();
+      bottomBox.textContent = getRandomNum();
+      createGrid();
+    });
+
+    topBox.textContent = getRandomNum();
+    bottomBox.textContent = getRandomNum();
+    createGrid();
+  function saveScore(currentScore) {
+      const scores = JSON.parse(localStorage.getItem("topScores") || "[]");
+      scores.push({ score: currentScore, date: new Date().toLocaleDateString() });
+      scores.sort((a, b) => b.score - a.score);
+      const topFive = scores.slice(0, 5);
+      localStorage.setItem("topScores", JSON.stringify(topFive));
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      const scores = JSON.parse(localStorage.getItem("topScores") || "[]");
+      const list = document.getElementById("topScores");
+      list.innerHTML = "";
+      scores.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.date} - ${s.score.toLocaleString()}`;
+        list.appendChild(li);
+      });
+    }
+
+    renderLeaderboard();
+  </script>
+</body>
+</html>
